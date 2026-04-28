@@ -457,10 +457,12 @@ export default function Emergency() {
       {phase === 'searching' && (
         <div className="px-4 mt-6 space-y-4">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <h2 className="font-bold text-gray-900 dark:text-white text-lg">Finding Driver...</h2>
+            {!demoMode && <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />}
+            <h2 className="font-bold text-gray-900 dark:text-white text-lg">
+              {demoMode ? 'Ambulance En Route' : 'Finding Driver...'}
+            </h2>
             <p className="text-gray-500 text-sm mt-1">Request ID: {requestStatus?.requestId}</p>
-            <p className="text-gray-400 text-xs mt-2">Drivers have 5 minutes to accept</p>
+            {!demoMode && <p className="text-gray-400 text-xs mt-2">Drivers have 5 minutes to accept</p>}
           </div>
           
           {/* Demo Animation Banner */}
