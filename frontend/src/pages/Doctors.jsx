@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useGeolocation } from '../hooks/useGeolocation.js'
 import LoginModal from '../components/LoginModal.jsx'
-import { Stethoscope, Star, Phone, Calendar, X, CheckCircle, MapPin, Clock, Search, Loader2 } from 'lucide-react'
+import { Stethoscope, Star, Phone, Calendar, X, CheckCircle, MapPin, Clock, Search, Loader2, Crosshair, RefreshCw } from 'lucide-react'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
 
@@ -23,8 +24,8 @@ const AVATAR_COLORS = [
 
 export default function Doctors() {
   const { user } = useAuth()
+  const { location: geoLocation, loading: geoLoading, error: geoError, accuracy, accuracyColor, refreshLocation } = useGeolocation()
   const [showLogin, setShowLogin] = useState(false)
-  const [location, setLocation] = useState(null)
   const [doctors, setDoctors] = useState([])
   const [specialty, setSpecialty] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,13 +36,22 @@ export default function Doctors() {
   const [patientForm, setPatientForm] = useState({ name: '', contact: '', reason: '' })
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Stable location ref - only changes on significant updates or manual refresh
+  const stableLocationRef = useRef(null)
+  const hasFetchedRef = useRef(false)
+
+  // Lock location once we have a good fix
+  useEffect(() => {
+    if (geoLocation && !stableLocationRef.current) {
+      stableLocationRef.current = geoLocation
+    }
+  }, [geoLocation])
+
+  // Use stable location for API calls
+  const location = stableLocationRef.current
+
   useEffect(() => {
     if (!user) { setShowLogin(true); return }
-    navigator.geolocation.getCurrentPosition(
-      pos => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => setLocation({ lat: 22.5726, lng: 88.3639 }),
-      { enableHighAccuracy: true }
-    )
   }, [user])
 
   const fetchDoctors = useCallback(async () => {
@@ -56,7 +66,20 @@ export default function Doctors() {
     setLoading(false)
   }, [location, specialty])
 
-  useEffect(() => { if (location) fetchDoctors() }, [location, specialty, fetchDoctors])
+  // Only fetch once when location is first locked or specialty changes
+  useEffect(() => {
+    if (location && !hasFetchedRef.current) {
+      hasFetchedRef.current = true
+      fetchDoctors()
+    }
+  }, [location, fetchDoctors])
+
+  // Refetch when specialty changes (but not when location updates)
+  useEffect(() => {
+    if (location && hasFetchedRef.current) {
+      fetchDoctors()
+    }
+  }, [specialty, fetchDoctors])
 
   const fetchSlots = async (doctorId) => {
     try {
@@ -129,6 +152,26 @@ export default function Doctors() {
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]/40 transition-all"
             />
+          </div>
+
+          {/* Location indicator with accuracy */}
+          <div className="flex items-center gap-2 mt-3 bg-gray-50 rounded-lg px-3 py-2">
+            <Crosshair size={14} className={`${geoLoading ? 'animate-spin' : ''} ${accuracyColor}`} />
+            <span className="text-xs text-gray-500 flex-1">
+              {geoLoading ? 'Getting accurate location...' : location ? `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}` : 'Detecting location...'}
+            </span>
+            {!geoLoading && accuracy && (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full bg-white ${accuracyColor}`}>
+                ±{Math.round(accuracy)}m
+              </span>
+            )}
+            <button 
+              onClick={refreshLocation}
+              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              title="Refresh location"
+            >
+              <RefreshCw size={12} className="text-gray-400" />
+            </button>
           </div>
         </div>
       </div>
