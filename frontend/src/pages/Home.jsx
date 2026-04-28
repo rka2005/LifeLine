@@ -21,6 +21,8 @@ export default function Home() {
   const [filters, setFilters] = useState({ radius: '5000', minRating: '', openNow: false, specialty: '' })
   const [selectedService, setSelectedService] = useState(null)
   const [mapCenter, setMapCenter] = useState(null)
+  const [routes, setRoutes] = useState([])
+  const [activeRoute, setActiveRoute] = useState(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('lifeline_dark') === 'true'
@@ -151,10 +153,39 @@ export default function Home() {
 
   const handleServiceTypeChange = (key) => {
     setServiceType(key)
-    setSelectedService(null) // Clear individual selection to show all of the new category
+    setSelectedService(null)
+    setRoutes([]) // Clear previous routes
+    setActiveRoute(null)
     // Immediately trigger search when button is clicked
     if (location) {
       setTimeout(() => fetchServices(), 100)
+    }
+  }
+
+  const handleGetDirections = async (service) => {
+    if (!location || !service?.location) return
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        originLat: String(location.lat),
+        originLng: String(location.lng),
+        destLat: String(service.location.lat),
+        destLng: String(service.location.lng)
+      })
+      const res = await fetch(`${BACKEND_URL}/api/routes/emergency?${params.toString()}`)
+      const data = await res.json()
+      if (data.routes && data.routes.length > 0) {
+        setRoutes(data.routes)
+        setActiveRoute(data.routes[0])
+        setSelectedService(null) // Close modal to show map
+      } else {
+        alert('Could not calculate a route for this location.')
+      }
+    } catch (err) {
+      console.error('Routing error:', err)
+      alert('Unable to connect to routing service.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -324,6 +355,8 @@ export default function Home() {
               color: serviceType === 'hospital' ? '#ef4444' : serviceType === 'police' ? '#3b82f6' : serviceType === 'doctor' ? '#f59e0b' : '#22c55e',
               info: `<div style="padding:8px;max-width:200px"><strong>${selectedService.name}</strong><br/>${selectedService.address || ''}<br/>⭐ ${selectedService.rating || 'N/A'}</div>`
             }] : markers}
+            routes={routes}
+            activeRoute={activeRoute}
             userLocation={location}
             height="320px"
             darkMode={dark}
@@ -543,10 +576,7 @@ export default function Home() {
 
               <div className="grid grid-cols-2 gap-3 mt-8">
                 <button 
-                  onClick={() => {
-                    alert('Simulation: Routing to ' + selectedService.name)
-                    setSelectedService(null)
-                  }}
+                  onClick={() => handleGetDirections(selectedService)}
                   className="py-3 px-4 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                 >
                   <Navigation size={18} />
