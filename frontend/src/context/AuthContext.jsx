@@ -34,18 +34,7 @@ export function AuthProvider({ children }) {
 
     if (firebaseEnabled && auth) {
       return onAuthStateChanged(auth, firebaseUser => {
-        if (firebaseUser) {
-          const normalized = normalizeUser({
-            uid: firebaseUser.uid,
-            displayName: firebaseUser.displayName,
-            email: firebaseUser.email,
-            photoURL: firebaseUser.photoURL,
-            phoneNumber: firebaseUser.phoneNumber,
-            provider: 'google'
-          })
-          setUser(normalized)
-          localStorage.setItem('lifeline_user', JSON.stringify(normalized))
-        } else if (!savedUser) {
+        if (!firebaseUser && !savedUser) {
           setUser(null)
         }
         setLoading(false)
@@ -75,6 +64,31 @@ export function AuthProvider({ children }) {
     setUser(prev => {
       const next = { ...prev, ...updates }
       localStorage.setItem('lifeline_user', JSON.stringify(next))
+      
+      // Sync updates to Firestore via backend
+      if (next.id) {
+        try {
+          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+          console.log('🔄 [Profile Update] Syncing to Firestore via:', backendUrl)
+          fetch(`${backendUrl}/api/auth/profile/${next.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updates)
+          }).then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`)
+            return res.json()
+          }).then(data => {
+            console.log('✅ [Profile Update] Synced to Firestore:', data)
+          }).catch(err => {
+            console.error('❌ [Profile Update] Background update failed:', err.message)
+          })
+        } catch (error) {
+          console.error('❌ [Profile Update] Error updating profile in Firestore:', error.message)
+        }
+      }
+      
       return next
     })
   }, [])

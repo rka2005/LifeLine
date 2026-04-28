@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { signInWithPopup } from 'firebase/auth'
+import { signInWithPopup, signOut } from 'firebase/auth'
 import { useAuth } from '../context/AuthContext.jsx'
 import { auth, firebaseEnabled, googleProvider } from '../lib/firebase.js'
-import { X, Mail, User as UserIcon } from 'lucide-react'
+import { X, Mail, User as UserIcon, ChevronRight, AlertCircle } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function LoginModal({ onClose }) {
   const { login } = useAuth()
@@ -11,17 +12,76 @@ export default function LoginModal({ onClose }) {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [userNotFound, setUserNotFound] = useState(false)
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault()
     if (!name.trim() || !email.trim()) return
+    
     setLoading(true)
     setError('')
-    setTimeout(() => {
-      login({ name, email, provider: 'email' })
+    
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+      
+      console.log('🔐 [Email Sign-in] Checking if user exists...')
+      console.log(`📧 Email: ${email}`)
+      
+      // Check if user exists
+      const checkResponse = await fetch(`${backendUrl}/api/auth/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      
+      const checkData = await checkResponse.json()
+      
+      if (!checkData.exists) {
+        console.log('❌ User does not exist, must sign up first')
+        setError('Account not found. Please create an account first.')
+        setUserNotFound(true)
+        setLoading(false)
+        return
+      }
+      
+      console.log('✅ User exists, processing sign-in...')
+      
+      // Sign in the user
+      const signinResponse = await fetch(`${backendUrl}/api/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      
+      const signinData = await signinResponse.json()
+      
+      if (!signinData.success) {
+        setError(signinData.message || 'Sign-in failed')
+        setLoading(false)
+        return
+      }
+      
+      console.log('✅ Sign-in successful, signin count:', signinData.user.signinCount)
+      
+      // Login to app
+      login({
+        id: signinData.user.id,
+        name: signinData.user.name || name,
+        email: signinData.user.email,
+        phone: signinData.user.phone,
+        address: signinData.user.address,
+        provider: 'email',
+        photoURL: signinData.user.photoURL,
+        createdAt: signinData.user.createdAt
+      })
+      
       setLoading(false)
       onClose()
-    }, 800)
+    } catch (error) {
+      console.error('❌ Sign-in error:', error)
+      setError(error.message || 'Sign-in failed. Please try again.')
+      setLoading(false)
+    }
   }
 
   const googleLogin = async () => {
@@ -32,25 +92,80 @@ export default function LoginModal({ onClose }) {
     if (!firebaseEnabled || !auth || !googleProvider) {
       setLoading(false)
       setMode('form')
-      setError('Firebase Google login is not configured. Use email fallback for this session.')
+      setError('Firebase Google login is not configured. Use email signin instead.')
       return
     }
 
     try {
       const result = await signInWithPopup(auth, googleProvider)
-      login({
-        uid: result.user.uid,
-        displayName: result.user.displayName,
-        email: result.user.email,
-        photoURL: result.user.photoURL,
-        phoneNumber: result.user.phoneNumber,
-        provider: 'google'
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+      
+      console.log('🔐 [Google Sign-in] User authenticated with Google')
+      console.log(`📧 Email: ${result.user.email}`)
+      
+      // Check if user exists
+      console.log('🔍 Checking if user exists in database...')
+      const checkResponse = await fetch(`${backendUrl}/api/auth/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: result.user.email })
       })
+      
+      const checkData = await checkResponse.json()
+      
+      if (!checkData.exists) {
+        console.log('❌ Google user does not exist, must sign up first')
+        setError('Account not found. Please create an account first using your Google email.')
+        setUserNotFound(true)
+        setMode('form')
+        await signOut(auth).catch(() => {})
+        setLoading(false)
+        return
+      }
+      
+      console.log('✅ User exists, processing sign-in...')
+      
+      // Sign in the user
+      const signinResponse = await fetch(`${backendUrl}/api/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: result.user.email })
+      })
+      
+      const signinData = await signinResponse.json()
+      
+      if (!signinData.success) {
+        setError(signinData.message || 'Sign-in failed')
+        setMode('form')
+        await signOut(auth).catch(() => {})
+        setLoading(false)
+        return
+      }
+      
+      console.log('✅ Google sign-in successful, signin count:', signinData.user.signinCount)
+      
+      login({
+        id: signinData.user.id || result.user.uid,
+        name: signinData.user.name || result.user.displayName,
+        email: signinData.user.email,
+        phone: signinData.user.phone || '',
+        address: signinData.user.address || '',
+        photoURL: signinData.user.photoURL || result.user.photoURL,
+        provider: 'google',
+        createdAt: signinData.user.createdAt,
+        signinCount: signinData.user.signinCount,
+        lastSigninAt: signinData.user.lastSigninAt,
+        status: signinData.user.status
+      })
+
+      await signOut(auth).catch(() => {})
+      
+      setLoading(false)
       onClose()
     } catch (err) {
-      setError(err?.message || 'Google sign-in failed. Use email fallback.')
+      console.error('❌ Google sign-in error:', err)
+      setError(err?.message || 'Google sign-in failed.')
       setMode('form')
-    } finally {
       setLoading(false)
     }
   }
@@ -76,8 +191,20 @@ export default function LoginModal({ onClose }) {
         ) : (
           <>
             {error && (
-              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-900/20 dark:text-red-300">
-                {error}
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-3 dark:border-red-900/60 dark:bg-red-900/20">
+                <AlertCircle size={18} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                  {userNotFound && (
+                    <Link
+                      to="/signup"
+                      onClick={onClose}
+                      className="inline-block mt-2 text-sm font-medium text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200 underline"
+                    >
+                      Go to Sign Up →
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
 
@@ -120,7 +247,11 @@ export default function LoginModal({ onClose }) {
                   type="email"
                   placeholder="Email Address"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => {
+                    setEmail(e.target.value)
+                    setError('')
+                    setUserNotFound(false)
+                  }}
                   className="input-field pl-10"
                   required
                 />
@@ -132,6 +263,15 @@ export default function LoginModal({ onClose }) {
               >
                 {loading ? 'Signing in...' : 'Continue as Guest'}
               </button>
+
+              <Link
+                to="/signup"
+                onClick={onClose}
+                className="w-full flex items-center justify-center gap-2 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900/20 dark:hover:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium py-2.5 px-4 rounded-xl transition-all active:scale-95"
+              >
+                Create Account
+                <ChevronRight size={18} />
+              </Link>
             </form>
           </>
         )}
