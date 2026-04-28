@@ -24,28 +24,43 @@ getFirebaseAdmin();
 const app = express();
 const httpServer = createServer(app);
 
-// Allow multiple origins: local dev and deployed frontend
+// Dynamic CORS origin matching
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:5173',
   'https://lifeline-frontend-240882103415.us-central1.run.app',
-  'http://localhost:5173'
-].filter(Boolean);
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.some(allowed => origin.startsWith(allowed)) || 
+                     origin.includes('localhost') || 
+                     origin.includes('127.0.0.1');
+                     
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
 
 const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
+  cors: corsOptions
 });
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(compression());
 app.use(morgan('dev'));
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
