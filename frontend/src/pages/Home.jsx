@@ -523,10 +523,10 @@ export default function Home() {
 
       {selectedService && (
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
+          <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl">
             {/* Header Image/Icon */}
             <div className={`h-32 relative flex items-center justify-center ${serviceIcons[serviceType].color}`}>
-              <div className="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm animate-pulse z-10">
+              <div className="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10">
                 DEMO MODE
               </div>
               <div className="relative">
@@ -581,7 +581,7 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-3 mt-8">
                 <button 
                   onClick={() => handleGetDirections(selectedService)}
-                  className="py-3 px-4 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
                 >
                   <Navigation size={18} />
                   Directions
@@ -591,7 +591,7 @@ export default function Home() {
                     alert('Simulation: Requesting service from ' + selectedService.name)
                     setSelectedService(null)
                   }}
-                  className="py-3 px-4 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-200 dark:shadow-none hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-red-600 text-white font-bold rounded-xl shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Ambulance size={18} />
                   Book Demo

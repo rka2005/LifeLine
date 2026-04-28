@@ -37,16 +37,16 @@
     @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4;
   }
   .btn-primary {
-    @apply bg-emergency hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-emergency hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium py-3 px-6 rounded-xl transition-all active:scale-95;
+    @apply bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium py-3 px-6 rounded-xl transition-colors;
   }
   .input-field {
     @apply w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all;
   }
   .floating-btn {
-    @apply fixed bottom-24 right-4 z-50 w-14 h-14 bg-emergency text-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-700 transition-all active:scale-90;
+    @apply fixed bottom-24 right-4 z-50 w-14 h-14 bg-emergency text-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-700 transition-colors;
   }
 }
 
@@ -110,16 +110,13 @@
   }
 }
 
-/* Enhanced Card Styles */
+/* Enhanced Card Styles - Minimalist */
 .card-hover {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.2s ease-out;
+  @apply transition-shadow;
 }
 
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 
-              0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  @apply shadow-md;
 }
 
 /* Demo Mode Animations */
@@ -158,13 +155,9 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Enhanced Button Interactions */
+/* Enhanced Button Interactions - Static */
 .btn-bounce {
-  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.btn-bounce:active {
-  transform: scale(0.96);
+  @apply transition-none;
 }
 
 /* Footer Link Animations */
