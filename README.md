@@ -219,6 +219,63 @@ Manual flow to validate:
 7. Test Civilian Mode and police alert activation.
 8. Book a doctor appointment.
 
+## ☁️ Google Cloud Run Deployment
+
+LifeLine+ is fully deployable on Google Cloud Run with auto-scaling, HTTPS, and full WebSocket support.
+
+### Prerequisites
+
+1. Install [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+2. Authenticate: `gcloud auth login`
+3. Set project: `gcloud config set project YOUR_PROJECT_ID`
+
+### Backend Deployment
+
+```bash
+# Build and deploy backend
+gcloud run deploy lifeline-backend \
+  --source ./backend \
+  --platform managed \
+  --region asia-south1 \
+  --allow-unauthenticated \
+  --set-env-vars "GOOGLE_MAPS_API_KEY=your_key,GEMINI_API_KEY=your_key,FIREBASE_PROJECT_ID=your_id,FRONTEND_URL=https://your-frontend-url.run.app,NODE_ENV=production"
+```
+
+### Frontend Deployment
+
+```bash
+# Build and deploy frontend
+gcloud run deploy lifeline-frontend \
+  --source ./frontend \
+  --platform managed \
+  --region asia-south1 \
+  --allow-unauthenticated \
+  --set-env-vars "VITE_BACKEND_URL=https://your-backend-url.run.app"
+```
+
+### Environment Variables
+
+**Backend:**
+
+- `GOOGLE_MAPS_API_KEY` - Google Maps API key
+- `GEMINI_API_KEY` - Gemini AI API key
+- `FIREBASE_PROJECT_ID` - Firebase project ID
+- `FIREBASE_PRIVATE_KEY` - Firebase service account private key
+- `FIREBASE_CLIENT_EMAIL` - Firebase service account email
+- `FRONTEND_URL` - Frontend Cloud Run URL (for CORS)
+- `NODE_ENV=production` - Production mode
+
+**Frontend:**
+
+- `VITE_BACKEND_URL` - Backend Cloud Run URL
+
+### Health Checks
+
+Both services include health check endpoints:
+
+- Backend: `https://your-backend-url.run.app/health`
+- Frontend: `https://your-frontend-url.run.app/health`
+
 ## 📚 Project Docs
 
 | File | Purpose |
