@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
       // Sync updates to Firestore via backend
       if (next.id) {
         try {
-          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://lifeline-backend-240882103415.us-central1.run.app'
           console.log('🔄 [Profile Update] Syncing to Firestore via:', backendUrl)
           fetch(`${backendUrl}/api/auth/profile/${next.id}`, {
             method: 'PUT',
@@ -95,7 +95,7 @@ export function AuthProvider({ children }) {
 
   const verifyGoogleToken = useCallback(async (idToken, provider = 'google') => {
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://lifeline-backend-240882103415.us-central1.run.app'
       console.log(`🔐 [Auth] Verifying ${provider} token with backend...`)
       
       const response = await fetch(`${backendUrl}/api/auth/google`, {

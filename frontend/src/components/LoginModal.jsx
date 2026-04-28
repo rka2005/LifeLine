@@ -100,7 +100,7 @@ export default function LoginModal({ onClose }) {
     setError('')
     
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://lifeline-backend-240882103415.us-central1.run.app'
       const response = await fetch(`${backendUrl}/api/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
