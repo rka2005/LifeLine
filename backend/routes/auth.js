@@ -1,65 +1,75 @@
 import express from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import { getFirebaseAdmin, saveDocument, getDocument, getUserByEmail, incrementSigninCount } from '../lib/firebaseAdmin.js';
+import { getFirebaseAdmin, saveDocument, getDocument, incrementSigninCount } from '../lib/firebaseAdmin.js';
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Verify Google Token and Sign In/Up
+// Verify Token (Failover Strategy: Google OAuth -> Firebase Auth)
 router.post('/google', async (req, res) => {
-  const { idToken } = req.body;
+  const { idToken, provider = 'google' } = req.body;
 
   if (!idToken) {
-    console.error('❌ [Google Auth] No ID token provided');
     return res.status(400).json({ error: 'No ID token provided' });
   }
 
   try {
-    console.log('🔐 [Google Auth] Verifying token...');
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    const { sub: googleId, email, name, picture } = payload;
+    let userData = null;
+    let googleId = null;
 
-    console.log(`👤 [Google Auth] Token verified for: ${email}`);
+    // Attempt 1: Verify as Pure Google OAuth Token
+    try {
+      console.log('🔐 [Auth] Attempting Pure Google verification...');
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      googleId = payload.sub;
+      userData = {
+        id: googleId,
+        email: payload.email,
+        name: payload.name,
+        photoURL: payload.picture,
+        provider: 'google_pure'
+      };
+    } catch (googleError) {
+      // Attempt 2: Fallback to Firebase Token Verification
+      console.log('🔄 [Auth] Pure Google failed, trying Firebase fallback...');
+      const auth = getFirebaseAdmin().auth();
+      const decodedToken = await auth.verifyIdToken(idToken);
+      googleId = decodedToken.uid;
+      userData = {
+        id: googleId,
+        email: decodedToken.email,
+        name: decodedToken.name,
+        photoURL: decodedToken.picture,
+        provider: 'firebase_google'
+      };
+    }
 
-    // Check if user exists in Firestore
-    let user = await getDocument('users', googleId);
-    let userData = {
-      id: googleId,
-      email,
-      name,
-      photoURL: picture,
-      updatedAt: new Date().toISOString()
-    };
+    // Process user in Firestore
+    const dbUser = await getDocument('users', googleId);
+    userData.updatedAt = new Date().toISOString();
 
-    if (!user) {
-      console.log('🆕 [Google Auth] Creating new user...');
+    if (!dbUser) {
       userData.createdAt = new Date().toISOString();
-      userData.provider = 'google';
       userData.signinCount = 1;
       await saveDocument('users', googleId, userData);
     } else {
-      console.log('✅ [Google Auth] Existing user found, updating profile...');
       await incrementSigninCount(googleId);
       await saveDocument('users', googleId, {
-        name,
-        photoURL: picture,
-        updatedAt: new Date().toISOString()
+        name: userData.name,
+        photoURL: userData.photoURL,
+        updatedAt: userData.updatedAt
       });
-      user = await getDocument('users', googleId);
-      userData = { ...user, ...userData };
+      userData = { ...dbUser, ...userData };
     }
 
-    res.json({ 
-      success: true, 
-      user: userData 
-    });
+    res.json({ success: true, user: userData });
   } catch (error) {
-    console.error('❌ [Google Auth] Error:', error);
-    res.status(401).json({ error: 'Invalid Google token' });
+    console.error('❌ [Auth Failover] All methods failed:', error);
+    res.status(401).json({ error: 'Authentication failed' });
   }
 });
 
