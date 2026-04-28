@@ -21,52 +21,65 @@ import { getFirebaseAdmin } from './lib/firebaseAdmin.js';
 dotenv.config();
 getFirebaseAdmin();
 
-const app = express();
-const httpServer = createServer(app);
+function buildAllowedOrigins() {
+  const configuredOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const origins = new Set([
+    configuredOrigin,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:4173',
+    'http://127.0.0.1:4173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ]);
 
-// Dynamic CORS origin matching - allows both deployed and local development
-const allowedOrigins = [
-  'https://lifeline-frontend-240882103415.us-central1.run.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:3000'
-];
+  return origins;
+}
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+
+  const allowedOrigins = buildAllowedOrigins();
+  if (allowedOrigins.has(origin)) return true;
+
+  try {
+    const parsed = new URL(origin);
+    return parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list or is a localhost variant
-    const isAllowed = allowedOrigins.includes(origin) || 
-                     origin.startsWith('http://localhost:') || 
-                     origin.startsWith('http://127.0.0.1:');
-                     
-    if (isAllowed) {
-      // Return the specific origin to set proper Access-Control-Allow-Origin header
-      callback(null, origin);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+  origin(origin, callback) {
+    if (isAllowedOrigin(origin)) {
+      return callback(null, true);
     }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 };
 
+const app = express();
+const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: corsOptions
+  cors: {
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) return callback(null, true);
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true
+  }
 });
 
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+app.use(helmet());
 app.use(compression());
 app.use(morgan('dev'));
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 

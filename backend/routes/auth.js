@@ -5,6 +5,56 @@ import { getFirebaseAdmin, saveDocument, getDocument, getUserByEmail, incrementS
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+function buildUserRecord(payload, existingUser = null) {
+  const now = new Date().toISOString();
+  const userId = existingUser?.id || payload.id || payload.email;
+
+  return {
+    id: userId,
+    name: payload.name || existingUser?.name || 'User',
+    email: payload.email,
+    phone: payload.phone || existingUser?.phone || '',
+    address: payload.address || existingUser?.address || '',
+    provider: payload.provider || existingUser?.provider || 'email',
+    photoURL: payload.photoURL || existingUser?.photoURL || '',
+    createdAt: existingUser?.createdAt || payload.createdAt || now,
+    updatedAt: now,
+    signinCount: existingUser?.signinCount || payload.signinCount || 1,
+    lastSigninAt: payload.lastSigninAt || existingUser?.lastSigninAt || now,
+    status: existingUser?.status || payload.status || 'active'
+  };
+}
+
+// Create or update a user record after signup
+router.post('/signup', async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const { email } = payload;
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+
+    const existingUser = await getUserByEmail(email);
+    const userRecord = buildUserRecord(payload, existingUser);
+
+    await saveDocument('users', userRecord.id, userRecord);
+
+    res.status(existingUser ? 200 : 201).json({
+      success: true,
+      user: userRecord,
+      created: !existingUser
+    });
+  } catch (error) {
+    console.error('❌ [Signup] Failed to save user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create user',
+      details: error.message
+    });
+  }
+});
+
 // Verify Token (Failover Strategy: Google OAuth -> Firebase Auth)
 router.post('/google', async (req, res) => {
   const { idToken, provider = 'google' } = req.body;
