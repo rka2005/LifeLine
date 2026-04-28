@@ -9,6 +9,7 @@ import {
   Navigation, Brain, Heart, ArrowRight, Star, Activity,
   Calendar, Check, Crosshair, RefreshCw
 } from 'lucide-react'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 
 const topDoctors = [
   {
@@ -189,13 +190,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right — Hero GIF */}
+          {/* Right — Hero Lottie */}
           <div className="order-1 lg:order-2 flex items-center justify-center">
             <div className="relative w-full max-w-md lg:max-w-xl">
-              <img
-                src="/LifeLine_SVG.gif"
-                alt="LifeLine+ Emergency Response"
-                className="w-full h-auto rounded-2xl shadow-lg"
+              <DotLottieReact
+                src="https://lottie.host/93fb06f3-844c-4188-9ebf-b76b9109f6b9/OEIzvHCqFr.lottie"
+                loop
+                autoplay
               />
             </div>
           </div>

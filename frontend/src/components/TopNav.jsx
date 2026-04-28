@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Home, Shield, Stethoscope, LayoutDashboard, User, Menu, X, Phone } from 'lucide-react'
+import { Home, Shield, Stethoscope, LayoutDashboard, User, Menu, X, Phone, LogIn } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
+import LoginModal from './LoginModal.jsx'
 
 export default function TopNav() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
 
   const scrollToSection = (id) => {
     if (pathname !== '/') {
@@ -109,8 +111,8 @@ export default function TopNav() {
               SOS
             </Link>
 
-            {/* User avatar */}
-            {user && (
+            {/* User avatar or Login */}
+            {user ? (
               <Link to="/profile" className="flex items-center gap-2">
                 <div className="w-7 h-7 bg-[#C8102E] rounded-lg flex items-center justify-center text-[11px] font-black text-white">
                   {user.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -119,6 +121,15 @@ export default function TopNav() {
                   {user.name?.split(' ')[0]}
                 </span>
               </Link>
+            ) : (
+              <button 
+                onClick={() => setShowLogin(true)}
+                className="hidden sm:flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-200 transition-all duration-200 active:scale-95 shadow-sm"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                <LogIn size={13} />
+                Login
+              </button>
             )}
 
             {/* Mobile hamburger */}
@@ -171,6 +182,8 @@ export default function TopNav() {
           </nav>
         </div>
       )}
+      
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     </header>
   )
 }

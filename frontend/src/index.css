@@ -5,18 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Cambria Math Font */
+/* Global UI Font */
 html, body {
-  font-family: 'Cambria Math', 'Cambria', 'Times New Roman', serif;
-}
-
-/* Override for specific elements to maintain readability */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Cambria Math', 'Cambria', 'Times New Roman', serif;
-}
-
-p, span, div, button, input, textarea, label {
-  font-family: 'Cambria Math', 'Cambria', 'Times New Roman', serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Custom Animations */
