@@ -4,12 +4,71 @@
 
 /* Custom Animations */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.3); }
-  50% { box-shadow: 0 8px 20px -2px rgba(239, 68, 68, 0.5); }
+  0%,
+  100% {
+    box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 20px -2px rgba(239, 68, 68, 0.5);
+  }
 }
 
 .dark-mode-toggle {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode Toggle Animations */
+@keyframes icon-spin-in {
+  0% {
+    transform: rotate(-180deg) scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes icon-spin-out {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(180deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes toggle-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.2);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.toggle-icon-enter {
+  animation: icon-spin-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.toggle-icon-exit {
+  animation: icon-spin-out 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.toggle-button {
+  animation: toggle-glow 2s ease-in-out infinite;
 }
 
 /* Lower edge glow for toggle - subtle */
@@ -70,7 +129,8 @@
 
 /* Custom Animations */
 @keyframes ambulance-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     filter: drop-shadow(0 4px 8px rgba(239, 68, 68, 0.3));
   }
@@ -81,7 +141,8 @@
 }
 
 @keyframes float-gentle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -118,7 +179,10 @@
 .card-hover:hover {
   transform: translateY(-4px);
   @apply shadow-xl border-red-500/20 dark:border-red-400/20;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 15px -3px rgba(239, 68, 68, 0.2);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 15px -3px rgba(239, 68, 68, 0.2);
 }
 
 .icon-pop {
@@ -181,7 +245,7 @@ html {
 }
 
 .footer-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -197,8 +261,9 @@ html {
 
 /* Accordion Smooth Height */
 .accordion-content {
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Map Marker Pulse for Live Tracking */
@@ -225,6 +290,43 @@ html {
 .ambulance-3d {
   animation: float-gentle 3s ease-in-out infinite;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* Dark Mode Toggle Animations */
+@keyframes spin-in {
+  0% {
+    transform: rotate(-180deg) scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(0deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spin-out {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(90deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(180deg) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.animate-spin-in {
+  animation: spin-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-spin-out {
+  animation: spin-out 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* Countdown Timer Styles */
