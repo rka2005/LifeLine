@@ -6,7 +6,7 @@ import LoginModal from '../components/LoginModal.jsx'
 import Loader from '../components/Loader.jsx'
 import { Ambulance, Shield, Stethoscope, Siren, MapPin, Clock, Navigation, Star, Filter, ChevronRight, Phone } from 'lucide-react'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 export default function Home() {
   const { user } = useAuth()
@@ -515,15 +515,15 @@ export default function Home() {
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
             {/* Header Image/Icon */}
-            <div className={`h-32 flex items-center justify-center ${serviceIcons[serviceType].color}`}>
+            <div className={`h-32 relative flex items-center justify-center ${serviceIcons[serviceType].color}`}>
+              <div className="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm animate-pulse z-10">
+                DEMO MODE
+              </div>
               <div className="relative">
                 {(() => {
                   const Icon = serviceIcons[serviceType].icon
                   return <Icon size={48} className={serviceIcons[serviceType].hex.includes('ef4444') ? 'text-red-500' : serviceIcons[serviceType].hex.includes('3b82f6') ? 'text-blue-500' : serviceIcons[serviceType].hex.includes('f59e0b') ? 'text-amber-500' : 'text-green-500'} />
                 })()}
-                <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm animate-pulse">
-                  DEMO MODE
-                </div>
               </div>
             </div>
 
