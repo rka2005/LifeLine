@@ -52,22 +52,23 @@ export default function Home() {
     const baseLat = location?.lat || 22.5726
     const baseLng = location?.lng || 88.3639
     
-    // Generate 10 Hospitals, 5 Police, 10 Doctors, 10 Pharmacies relative to location
-    const generateDemo = (type, count, prefix) => {
-      const typeLabels = {
-        hospital: 'Hospital',
-        police: 'Police Station',
-        doctor: 'Clinic',
-        pharmacy: 'Pharmacy'
+    const generateDemo = (type, count) => {
+      const config = {
+        hospital: { prefix: 'Nearby', suffix: 'Hospital', names: ['City', 'General', 'Emergency', 'Metro'] },
+        police: { prefix: 'Local', suffix: 'Police Station', names: ['Sector 5', 'Bidhannagar', 'Park Street', 'Central'] },
+        doctor: { prefix: 'Dr.', suffix: 'Clinic', names: ['Sharma', 'Banerjee', 'Gupta', 'Sen'] },
+        pharmacy: { prefix: 'Quick', suffix: 'Pharmacy', names: ['MedPlus', 'Apollo', 'Frank Ross', 'Wellness'] }
       }
+      
+      const c = config[type]
       return Array.from({ length: count }).map((_, i) => ({
         id: `${type}-${i}`,
-        name: `${prefix} ${['General', 'Emergency', 'Central', 'Metro', 'Unity', 'Lifeline', 'Global', 'City'][i % 8] || 'Super'} ${typeLabels[type]}`,
+        name: `${c.prefix} ${c.names[i % c.names.length]} ${c.suffix}`,
         address: `Street ${i + 1}, Near current location`,
         rating: (4 + Math.random()).toFixed(1),
         distance: 0.5 + (i * 0.4),
         openNow: true,
-        phone: type === 'police' ? '100' : `+91 99900 0000${i}`,
+        phone: type === 'police' ? '100' : `+91 98300 1234${i}`,
         location: {
           lat: baseLat + (Math.random() - 0.5) * 0.02,
           lng: baseLng + (Math.random() - 0.5) * 0.02
@@ -76,10 +77,10 @@ export default function Home() {
     }
 
     const demoData = {
-      hospital: generateDemo('hospital', 10, 'Nearby'),
-      police: generateDemo('police', 5, 'Local'),
-      doctor: generateDemo('doctor', 10, 'Dr.'),
-      pharmacy: generateDemo('pharmacy', 10, 'Quick')
+      hospital: generateDemo('hospital', 10),
+      police: generateDemo('police', 5),
+      doctor: generateDemo('doctor', 10),
+      pharmacy: generateDemo('pharmacy', 10)
     }
     
     return demoData[serviceType] || []
@@ -104,15 +105,12 @@ export default function Home() {
       const res = await fetch(`${BACKEND_URL}/api/nearest-services?${params.toString()}`)
       const data = await res.json()
       
-      // Use API results if available, otherwise use demo data
       if (data.results && data.results.length > 0) {
         setServices(data.results)
       } else {
-        // Fallback to demo data
         setServices(demoServices())
       }
     } catch (err) {
-      // On error, use demo data
       setServices(demoServices())
     } finally {
       setLoading(false)
@@ -128,28 +126,19 @@ export default function Home() {
     else navigate('/emergency')
   }
 
+  const serviceIcons = {
+    hospital: { icon: Siren, label: 'Hospitals', color: 'text-red-500 bg-red-50 dark:bg-red-900/20', hex: '#ef4444' },
+    police: { icon: Shield, label: 'Police', color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20', hex: '#3b82f6' },
+    doctor: { icon: Stethoscope, label: 'Doctors', color: 'text-amber-500 bg-amber-50 dark:bg-amber-900/20', hex: '#f59e0b' },
+    pharmacy: { icon: MapPin, label: 'Pharmacy', color: 'text-green-500 bg-green-50 dark:bg-green-900/20', hex: '#22c55e' }
+  }
+
   const markers = services.slice(0, 10).filter(s => s.location).map(s => ({
     position: s.location,
     title: s.name,
-    color: serviceType === 'hospital' ? '#ef4444' : serviceType === 'police' ? '#3b82f6' : '#f59e0b',
+    color: serviceIcons[serviceType].hex,
     info: `<div style="padding:8px;max-width:200px"><strong>${s.name}</strong><br/>${s.address || ''}<br/>⭐ ${s.rating || 'N/A'}</div>`
   }))
-
-  if (location) {
-    markers.push({
-      position: location,
-      title: 'You',
-      color: '#3b82f6',
-      bounce: false
-    })
-  }
-
-  const serviceIcons = {
-    hospital: { icon: Siren, label: 'Hospitals', color: 'text-red-500 bg-red-50 dark:bg-red-900/20', keyword: 'hospital' },
-    police: { icon: Shield, label: 'Police', color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20', keyword: 'police station' },
-    doctor: { icon: Stethoscope, label: 'Doctors', color: 'text-amber-500 bg-amber-50 dark:bg-amber-900/20', keyword: 'doctor' },
-    pharmacy: { icon: MapPin, label: 'Pharmacy', color: 'text-green-500 bg-green-50 dark:bg-green-900/20', keyword: 'pharmacy' }
-  }
 
   const handleServiceTypeChange = (key) => {
     setServiceType(key)
@@ -527,7 +516,10 @@ export default function Home() {
             {/* Header Image/Icon */}
             <div className={`h-32 flex items-center justify-center ${serviceIcons[serviceType].color}`}>
               <div className="relative">
-                <Siren size={48} className="text-red-500" />
+                {(() => {
+                  const Icon = serviceIcons[serviceType].icon
+                  return <Icon size={48} className={serviceIcons[serviceType].hex.includes('ef4444') ? 'text-red-500' : serviceIcons[serviceType].hex.includes('3b82f6') ? 'text-blue-500' : serviceIcons[serviceType].hex.includes('f59e0b') ? 'text-amber-500' : 'text-green-500'} />
+                })()}
                 <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm animate-pulse">
                   DEMO MODE
                 </div>
