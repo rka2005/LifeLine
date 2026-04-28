@@ -100,7 +100,7 @@ export default function LoginModal({ onClose }) {
     setError('')
     
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+      const backendUrl = import.meta.env.DEV ? 'http://localhost:5000' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000')
       const response = await fetch(`${backendUrl}/api/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,14 +136,14 @@ export default function LoginModal({ onClose }) {
 
         {mode === 'google' && loading && !showDemoOption ? (
           <div className="text-center py-10">
-            <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-12 h-12 border-4 border-[#C8102E] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-gray-600 font-medium">Securing connection...</p>
           </div>
         ) : (
           <>
             {error && (
               <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 flex items-start gap-3">
-                <AlertCircle size={18} className="text-red-500 mt-0.5" />
+                <AlertCircle size={18} className="text-[#C8102E] mt-0.5" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -188,29 +188,29 @@ export default function LoginModal({ onClose }) {
 
             <form onSubmit={submitForm} className="space-y-4">
               <div className="relative group">
-                <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C8102E] transition-colors" />
                 <input
                   type="text"
                   placeholder="Full Name"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-red-500/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-medium text-sm"
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#C8102E]/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-medium text-sm"
                 />
               </div>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C8102E] transition-colors" />
                 <input
                   type="email"
                   placeholder="Email Address"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-red-500/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-medium text-sm"
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#C8102E]/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-medium text-sm"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-xl shadow-red-500/25 flex items-center justify-center gap-2"
+                className="w-full bg-[#C8102E] hover:bg-[#a50d26] text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-xl shadow-[#C8102E]/25 flex items-center justify-center gap-2"
               >
                 {loading ? 'Authenticating...' : 'Enter Platform'}
                 {!loading && <ChevronRight size={18} />}

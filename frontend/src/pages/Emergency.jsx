@@ -10,7 +10,7 @@ import {
   Timer, ArrowRight, Loader2, Building2
 } from 'lucide-react'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+const BACKEND_URL = import.meta.env.DEV ? 'http://localhost:5000' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000')
 
 export default function Emergency() {
   const { user } = useAuth()
@@ -28,6 +28,7 @@ export default function Emergency() {
 
   const [destination, setDestination] = useState(null)
   const [nearestHospital, setNearestHospital] = useState(null) // { name, address, distance, location }
+  const [nearbyHospitals, setNearbyHospitals] = useState([])
   const [routes, setRoutes] = useState([])
   const [activeRoute, setActiveRoute] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -158,7 +159,7 @@ export default function Emergency() {
       const res = await fetch(`${BACKEND_URL}/api/nearest-services?${params}`)
       const data = await res.json()
 
-      // Pick the closest one with a valid location
+      // Pick top 4 hospitals with valid locations
       const results = (data.results || []).filter(r => r.location?.lat && r.location?.lng)
       if (results.length === 0) {
         setPhase('init')
@@ -166,7 +167,26 @@ export default function Emergency() {
         return
       }
 
-      const nearest = results[0]  // already sorted by distance from backend
+      const topHospitals = results.slice(0, 4)
+      const topHospitalsWithDetails = await Promise.all(
+        topHospitals.map(async (h) => {
+          try {
+            const detailRes = await fetch(`${BACKEND_URL}/api/nearest-services/details/${h.id}`);
+            if (!detailRes.ok) throw new Error('Details fetch failed');
+            const detailData = await detailRes.json();
+            return {
+              ...h,
+              phone: detailData.formatted_phone_number || detailData.international_phone_number || 'N/A'
+            };
+          } catch (e) {
+            return { ...h, phone: 'N/A' };
+          }
+        })
+      );
+
+      setNearbyHospitals(topHospitalsWithDetails)
+
+      const nearest = topHospitalsWithDetails[0]  // already sorted by distance from backend
       const dist = nearest.distance != null ? `${nearest.distance.toFixed(1)} km` : null
 
       setNearestHospital({
@@ -177,6 +197,7 @@ export default function Emergency() {
         openNow: nearest.openNow,
         location: nearest.location,
         placeId: nearest.id,
+        phone: nearest.phone
       })
       setDestination(nearest.location)
       setPhase('route_calc')
@@ -194,6 +215,7 @@ export default function Emergency() {
     if (!stableGpsRef.current) return
     hospitalFetchedRef.current = false
     setNearestHospital(null)
+    setNearbyHospitals([])
     setDestination(null)
     setRoutes([])
     setActiveRoute(null)
@@ -372,13 +394,30 @@ export default function Emergency() {
   // ─────────────────────────────────────────────────────────────────────────
   const mapMarkers = []
   if (userLocation) mapMarkers.push({ position: userLocation, title: 'Your Location', type: 'user' })
-  if (nearestHospital?.location) mapMarkers.push({
-    position: nearestHospital.location,
-    title: nearestHospital.name || 'Hospital',
-    type: 'hospital',
-    bounce: true,
-    info: `<div style="padding:8px;max-width:200px;font-family:sans-serif"><strong style="color:#C8102E">${nearestHospital.name}</strong><br/><span style="font-size:11px;color:#666">${nearestHospital.address || ''}</span>${nearestHospital.distance ? `<br/><span style="font-size:11px;color:#16a34a">📍 ${nearestHospital.distance}</span>` : ''}</div>`
-  })
+  
+  if (nearbyHospitals.length > 0) {
+    nearbyHospitals.forEach((h, idx) => {
+      if (h.location) {
+        const distString = h.distance != null ? `${h.distance.toFixed(1)} km` : ''
+        const phoneLink = h.phone !== 'N/A' ? `<br/><a href="tel:${h.phone}" style="font-size:11px;color:#2563eb;text-decoration:none;">📞 ${h.phone}</a>` : ''
+        mapMarkers.push({
+          position: h.location,
+          title: h.name || 'Hospital',
+          type: 'hospital',
+          bounce: idx === 0, // Only bounce the closest one
+          info: `<div style="padding:8px;max-width:200px;font-family:sans-serif"><strong style="color:#C8102E">${h.name}</strong><br/><span style="font-size:11px;color:#666">${h.address || ''}</span>${phoneLink}${distString ? `<br/><span style="font-size:11px;color:#16a34a">📍 ${distString}</span>` : ''}</div>`
+        })
+      }
+    })
+  } else if (nearestHospital?.location) {
+    mapMarkers.push({
+      position: nearestHospital.location,
+      title: nearestHospital.name || 'Hospital',
+      type: 'hospital',
+      bounce: true,
+      info: `<div style="padding:8px;max-width:200px;font-family:sans-serif"><strong style="color:#C8102E">${nearestHospital.name}</strong><br/><span style="font-size:11px;color:#666">${nearestHospital.address || ''}</span>${nearestHospital.distance ? `<br/><span style="font-size:11px;color:#16a34a">📍 ${nearestHospital.distance}</span>` : ''}</div>`
+    })
+  }
   if (tracking?.location) mapMarkers.push({ position: tracking.location, title: 'Ambulance', type: 'ambulance' })
 
   const routePoly = activeRoute ? [activeRoute] : routes
@@ -439,7 +478,7 @@ export default function Emergency() {
             traffic={true}
             show3D={show3D}
             onToggle3D={() => setShow3D(v => !v)}
-            onMapClick={(phase === 'init') ? (loc) => { setDestination(loc); setNearestHospital(null); setPhase('route_calc') } : undefined}
+            onMapClick={(phase === 'init') ? (loc) => { setDestination(loc); setNearestHospital(null); setNearbyHospitals([]); setPhase('route_calc') } : undefined}
             onRefreshLocation={refreshLocation}
             zoom={15}
             demoMode={demoMode}
@@ -471,6 +510,11 @@ export default function Emergency() {
                 )}
                 {nearestHospital.openNow === false && (
                   <span className="text-[10px] text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">○ Closed</span>
+                )}
+                {nearestHospital.phone && nearestHospital.phone !== 'N/A' && (
+                  <a href={`tel:${nearestHospital.phone}`} className="text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 ml-1">
+                    <Phone size={9} /> {nearestHospital.phone}
+                  </a>
                 )}
               </div>
             </div>
