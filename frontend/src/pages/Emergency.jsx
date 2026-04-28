@@ -503,7 +503,7 @@ export default function Emergency() {
               <Ambulance size={28} className="text-green-600" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-lg">Ambulance Arrived! 🎉</h3>
+              <h3 className="font-bold text-lg flex items-center gap-2">Ambulance Arrived! <CheckCircle size={20} /></h3>
               <p className="text-green-100 text-sm">Your ambulance has reached your location</p>
             </div>
             <button 

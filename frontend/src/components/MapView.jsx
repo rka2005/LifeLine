@@ -436,7 +436,9 @@ export default function MapView({
     const infoWindow = new window.google.maps.InfoWindow({
       content: `<div style="padding: 8px; font-weight: bold; color: #2563eb;">
         <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-size: 18px;">👤</span>
+          <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #3b82f6; border-radius: 50%; color: white;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
           <span>${userAvatar.name} - Waiting for ambulance</span>
         </div>
       </div>`

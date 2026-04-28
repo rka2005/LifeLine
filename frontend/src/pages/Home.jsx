@@ -138,7 +138,7 @@ export default function Home() {
     position: s.location,
     title: s.name,
     color: serviceIcons[serviceType].hex,
-    info: `<div style="padding:8px;max-width:200px"><strong>${s.name}</strong><br/>${s.address || ''}<br/>⭐ ${s.rating || 'N/A'}</div>`
+    info: `<div style="padding:8px;max-width:200px"><strong>${s.name}</strong><br/>${s.address || ''}<br/><span style="color:#f59e0b">★</span> ${s.rating || 'N/A'}</div>`
   }))
 
   const handleServiceTypeChange = (key) => {
@@ -344,7 +344,7 @@ export default function Home() {
               position: selectedService.location,
               title: selectedService.name,
               color: serviceType === 'hospital' ? '#ef4444' : serviceType === 'police' ? '#3b82f6' : serviceType === 'doctor' ? '#f59e0b' : '#22c55e',
-              info: `<div style="padding:8px;max-width:200px"><strong>${selectedService.name}</strong><br/>${selectedService.address || ''}<br/>⭐ ${selectedService.rating || 'N/A'}</div>`
+              info: `<div style="padding:8px;max-width:200px"><strong>${selectedService.name}</strong><br/>${selectedService.address || ''}<br/><span style="color:#f59e0b">★</span> ${selectedService.rating || 'N/A'}</div>`
             }] : markers}
             routes={routes}
             activeRoute={activeRoute}
@@ -474,7 +474,9 @@ export default function Home() {
                     </span>
                   </div>
                   {isSelected && (
-                    <p className="text-xs text-red-600 mt-2 font-medium">📍 Showing on map</p>
+                    <div className="flex items-center gap-1 text-xs text-red-600 mt-2 font-medium">
+                      <MapPin size={12} /> Showing on map
+                    </div>
                   )}
                 </div>
                 <button className="shrink-0 w-9 h-9 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center text-red-600 hover:bg-red-100 transition-colors">
