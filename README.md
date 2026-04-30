@@ -36,12 +36,12 @@
 The platform is successfully deployed on two different cloud stacks:
 
 ### ☁️ Google Cloud Run Stack
-- **Frontend**: [https://lifeline-frontend-240882103415.us-central1.run.app/](https://lifeline-frontend-240882103415.us-central1.run.app/)
-- **Backend**: [https://lifeline-backend-240882103415.us-central1.run.app/](https://lifeline-backend-240882103415.us-central1.run.app/)
+- **Frontend**: [LifeLine+](https://lifeline-frontend-240882103415.us-central1.run.app/)
+- **Backend**: [LifeLine+ Backend](https://lifeline-backend-240882103415.us-central1.run.app/)
 
 ### ⚡ Hybrid Stack (Vercel + Render)
-- **Frontend (Vercel)**: [https://lifelineplus.vercel.app](https://lifelineplus.vercel.app)
-- **Backend (Render)**: [https://lifeline-backend-q1au.onrender.com](https://lifeline-backend-q1au.onrender.com)
+- **Frontend (Vercel)**: [LifeLine+ (Vercel)](https://lifelineplus.vercel.app)
+- **Backend (Render)**: [LifeLine+ (Render)](https://lifeline-backend-q1au.onrender.com)
 
 ---
 
