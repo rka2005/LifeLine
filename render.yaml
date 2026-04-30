@@ -1,0 +1,32 @@
+services:
+  # Backend Service
+  - type: web
+    name: lifeline-plus-backend
+    env: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # The following should be set in the Render Dashboard for security
+      # - key: MONGODB_URI
+      #   sync: false
+      # - key: FIREBASE_PROJECT_ID
+      #   sync: false
+
+  # Optional: Frontend Service on Render (as fallback or alternative)
+  - type: web
+    name: lifeline-plus-frontend
+    env: static
+    rootDir: frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

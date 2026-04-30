@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "public": true,
+  "buildCommand": "npm install && npm run build",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "regions": ["cle1"],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
