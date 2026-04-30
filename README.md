@@ -31,6 +31,21 @@
 
 **LifeLine+** is a production-ready full-stack emergency response platform built for India. It accelerates crisis coordination in hospitality and public spaces by combining real-time ambulance tracking, smart hospital discovery, traffic-aware routing, police alerts, doctor bookings, and AI-powered emergency verification — all in one unified mobile-first experience.
 
+## 🌍 Live Deployment
+
+The platform is successfully deployed on two different cloud stacks:
+
+### ☁️ Google Cloud Run Stack
+- **Frontend**: [https://lifeline-frontend-240882103415.us-central1.run.app/](https://lifeline-frontend-240882103415.us-central1.run.app/)
+- **Backend**: [https://lifeline-backend-240882103415.us-central1.run.app/](https://lifeline-backend-240882103415.us-central1.run.app/)
+
+### ⚡ Hybrid Stack (Vercel + Render)
+- **Frontend (Vercel)**: [https://lifelineplus.vercel.app](https://lifelineplus.vercel.app)
+- **Backend (Render)**: [https://lifeline-backend-q1au.onrender.com](https://lifeline-backend-q1au.onrender.com)
+
+---
+
+
 ## 🧭 Problem Statement
 
 **[Rapid Crisis Response] Accelerated Emergency Response and Crisis Coordination in Hospitality**
@@ -63,7 +78,7 @@ Emergency response often breaks down because nearby services, traffic-aware rout
 | Backend | Node.js, Express, Helmet, CORS, Compression, Morgan |
 | AI | Gemini 1.5 Flash through backend API |
 | Persistence | Optional Firebase Admin Firestore writes with in-memory fallback |
-| Deploy | Frontend on Vercel, backend on Render |
+| Deploy | Successfully deployed on Google Cloud Run and Vercel+Render |
 
 ## 📁 Folder Structure
 
