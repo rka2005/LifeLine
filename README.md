@@ -15,6 +15,24 @@
 ![Gemini AI](https://img.shields.io/badge/Gemini-AI-8E75B2?style=flat-square&logo=google)
 ![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Admin-FFCA28?style=flat-square&logo=firebase)
 
+
+``text
+
+            ██╗     ██╗███████╗███████╗    ██╗     ██╗███╗   ██╗███████╗+
+            ██║     ██║██╔════╝██╔════╝    ██║     ██║████╗  ██║██╔════╝+
+            ██║     ██║█████╗  █████╗      ██║     ██║██╔██╗ ██║█████╗  +
+            ██║     ██║██╔══╝  ██╔══╝      ██║     ██║██║╚██╗██║██╔══╝  +
+            ███████╗██║██║     ███████╗    ███████╗██║██║ ╚████║███████╗+
+            ╚══════╝╚═╝╚═╝     ╚══════╝    ╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝+
+
+                        "Saving minutes. Saving lives."
+
+> initializing emergency protocol...
+> connecting to system...
+> LIFELINE+ READY ✔
+
+```
+
 **LifeLine+** is a production-ready full-stack emergency response platform built for India. It accelerates crisis coordination in hospitality and public spaces by combining real-time ambulance tracking, smart hospital discovery, traffic-aware routing, police alerts, doctor bookings, and AI-powered emergency verification — all in one unified mobile-first experience.
 
 ## 🧭 Problem Statement
@@ -293,16 +311,16 @@ We are the **LifeLine+** team, participating in the **Google Solution Challenge 
 
 | Member | Role |
 | --- | --- |
-| Babin Bid | Team Lead & Tech Architecture Developer |
+| Babin Bid | Team Lead |
 | Atanu Saha | Frontend Developer |
-| Rohit Kumar Adak | Idea Provider & Backend Developer |
-| Sagnik Bachhar | Research & Developer |
+| Rohit Kumar Adak | Idea Provider, Tech Architecture Developer& Backend Developer |
+| Sagnik Bachhar | Researcher |
 
 ## ⚠️ Safety Note
 
 LifeLine+ is built for rapid coordination, but life-threatening emergencies should still call official Indian emergency numbers such as `108` or `112` immediately.
 
-**Built with ❤️ for faster emergency response in India.**
+**Faster response. Safer India.**
   
 ## License  
 This project is licensed under the [LICENSE](LICENSE) file. 
