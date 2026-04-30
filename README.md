@@ -27,10 +27,6 @@
 
                                 "Saving minutes. Saving lives."
 
-> initializing emergency protocol...
-> connecting to system...
-> LIFELINE+ READY ✔
-
 ```
 
 **LifeLine+** is a production-ready full-stack emergency response platform built for India. It accelerates crisis coordination in hospitality and public spaces by combining real-time ambulance tracking, smart hospital discovery, traffic-aware routing, police alerts, doctor bookings, and AI-powered emergency verification — all in one unified mobile-first experience.
