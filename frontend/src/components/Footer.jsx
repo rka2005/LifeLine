@@ -133,9 +133,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[11px] text-gray-400 text-center sm:text-left">
-            © {currentYear} LifeLine+ Team. Built with
-            <Heart size={10} className="inline mx-1 text-[#C8102E] fill-[#C8102E] animate-pulse" />
-            for India.
+            © {currentYear} LifeLine+ Team. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="text-[11px] text-gray-500 hover:text-[#C8102E] transition-colors">Privacy</Link>
