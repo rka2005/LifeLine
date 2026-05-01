@@ -399,15 +399,13 @@ export default function Home() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { name: 'Babin Bid', role: 'Team Lead & Architecture', initials: 'BB' },
-              { name: 'Atanu Saha', role: 'Frontend Developer', initials: 'AS' },
-              { name: 'Rohit Kumar Adak', role: 'Idea & Backend Dev', initials: 'RK' },
-              { name: 'Sagnik Bachhar', role: 'Research & Developer', initials: 'SB' },
+              { name: 'Babin Bid', role: 'Team Lead & Full Stack Developer', initials: 'BB', portfolio: null },
+              { name: 'Atanu Saha', role: 'Frontend Developer & Tester', initials: 'AS', portfoli0: null },
+              { name: 'Rohit Kumar Adak', role: 'Idea, Architect & Backend Dev', initials: 'RK', portfolio: 'https://rohitadak.dev'},
+              { name: 'Sagnik Bachhar', role: 'Researcher', initials: 'SB', portfolio: null },
             ].map((m) => (
               <div key={m.name} className="flex flex-col items-center text-center p-5 rounded-2xl bg-white border border-gray-100 hover:border-[#C8102E]/20 hover:shadow-md hover:-translate-y-1 transition-all duration-200 group">
-                <div className="w-14 h-14 rounded-2xl bg-[#C8102E] flex items-center justify-center text-white font-black text-lg mb-3 shadow-md shadow-[#C8102E]/15 group-hover:scale-110 transition-transform">
-                  {m.initials}
-                </div>
+                <a href={m.portfolio} target="_blank" rel="noopener noreferrer" className="w-14 h-14 rounded-2xl bg-[#C8102E] flex items-center justify-center text-white font-black text-lg mb-3 shadow-md shadow-[#C8102E]/15 group-hover:scale-110 transition-transform">{m.initials}</a>
                 <p className="text-sm font-bold text-gray-900 leading-tight">{m.name}</p>
                 <p className="text-[10px] text-gray-400 mt-1 leading-tight">{m.role}</p>
               </div>
